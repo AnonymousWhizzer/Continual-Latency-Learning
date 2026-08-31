@@ -1,17 +1,29 @@
 Experimental Results
 
-This section presents the comparison between the Baseline, Fixed, and Adaptive prediction strategies, with a particular focus on prediction stability around regime changes and the resulting impact on application-level QoE.
+This document gives additional insights by comparing three QoS prediction strategies:
+
+* Baseline: a single prediction model
+* Fixed: a fixed pool of pre-trained models
+* Adaptive: an evolving model pool able to integrate a new specialized model when a previously unseen QoS regime is encountered.
+
+The analysis focuses on two aspects:
+  * prediction stability around regime changes;
+  * the resulting impact on application-level QoE.
+
+Prediction Results
 
 1. Baseline: prediction instability and forgetting effects
 
 The Baseline relies on a single prediction model.
 
-The results show strong prediction oscillations around the detected regime changes. Each transition introduces a period of instability before the predictor converges toward the new RTT level.
+The results show strong prediction oscillations around regime changes. After each breakpoint, the model requires several prediction windows before converging toward the new RTT level.
 
-This behavior highlights the limitations of a single continually updated model in a non-stationary environment. In particular, the repeated instability observed when the operating conditions change is consistent with catastrophic forgetting and remembering effects: adapting the same model to a new regime can degrade previously acquired knowledge, while returning to a previously observed regime does not necessarily guarantee an immediate stable response.
+This behavior highlights the limitations of a single continually updated model in a non-stationary environment. In particular, the repeated instability observed when the operating conditions change is consistent with catastrophic forgetting and remembering effects.
+
+When the model adapts to a new regime, previously acquired knowledge may be degraded. Conversely, when a previously observed regime reappears, the model does not necessarily recover a stable prediction behavior immediately.
 
 <p align="center">
-  <img src="figures/baseline_all_events.png" width="95%" alt="Baseline prediction behavior">
+  <img src="figures/Baseline_all_events.png" width="95%" alt="Baseline prediction behavior">
 </p>
 
 The Baseline therefore performs reasonably during stationary periods, but its prediction reliability deteriorates significantly around regime transitions.
@@ -20,9 +32,11 @@ The Baseline therefore performs reasonably during stationary periods, but its pr
 
 The Fixed strategy improves over the Baseline by selecting among a fixed set of pre-trained models.
 
-This reduces the need to continuously overwrite the knowledge of a single model and therefore limits the instability observed with the Baseline.
+Instead of continuously modifying a single model, the system can switch between specialized predictors according to the current QoS conditions.
 
-However, prediction errors remain visible around the breakpoints. The model pool is static, meaning that the system can only select among models that already exist. When a newly observed QoS regime is not sufficiently represented by the available models, the Fixed strategy cannot create a more appropriate predictor.
+This reduces the long-term instability observed with the Baseline and avoids continuously overwriting the knowledge of a single predictor.
+
+However, the model pool remains static. The system can only select among models that already exist. When the observed QoS regime is not sufficiently represented by the available models, prediction instability remains visible around the breakpoints.
 
 Event 1
 
@@ -42,17 +56,19 @@ Event 3
   <img src="figures/fixed_event_3.png" width="90%" alt="Fixed approach - Event 3">
 </p>
 
-Compared with the Baseline, the Fixed approach is more stable overall, but significant prediction oscillations can still occur immediately after regime changes.
+Compared with the Baseline, the Fixed approach is more stable overall. Nevertheless, significant prediction oscillations remain immediately after some regime changes because the model pool cannot evolve when a new operating condition appears.
 
 3. Adaptive model pool: learning a new regime
 
-The Adaptive strategy extends the Fixed approach by allowing the model pool to evolve when the existing models are no longer sufficient.
+The Adaptive strategy extends the Fixed approach by allowing the model pool itself to evolve.
 
-Event 1: behavior similar to Fixed
+When the currently available models are not sufficient to represent a newly observed QoS regime, the system can trigger retraining and integrate a new specialized model.
 
-At Event 1, the Adaptive strategy behaves similarly to Fixed.
+Event 1: first exposure to the new regime
 
-At this stage, the newly encountered QoS regime has not yet been learned and no specialized model exists for it. The prediction therefore remains unstable around the corresponding breakpoint.
+During Event 1, Adaptive behaves similarly to Fixed.
+
+At this stage, the newly encountered QoS regime has not yet been learned and no specialized model is available for it. Prediction instability therefore remains visible around the corresponding breakpoint.
 
 <p align="center">
   <img src="figures/adaptive_event_1.png" width="90%" alt="Adaptive approach - Event 1">
@@ -64,67 +80,127 @@ A new specialized model, PoP_4248 (ESN), is then created and integrated into the
 
 Events 2 and 3: reuse of the learned regime
 
-Once the new model has been integrated, the Adaptive strategy can reuse the knowledge acquired during Event 1.
+Once the new model has been integrated, Adaptive can reuse the knowledge acquired during Event 1.
 
-When the corresponding QoS regime is encountered again, the predictor no longer needs to adapt from scratch. This results in a much more stable prediction response around the following regime changes.
+When the corresponding or a sufficiently similar QoS regime is encountered again, the predictor no longer needs to adapt from scratch. The prediction response becomes considerably more stable around the following regime changes.
 
 <p align="center">
   <img src="figures/adaptive_event_3.png" width="90%" alt="Adaptive approach after retraining">
 </p>
 
-The sequence can therefore be summarized as:
+Adaptive learning process
+
+Stage
+
+System behavior
+
+Consequence
 
 Event 1
-   ↓
-New QoS regime encountered
-   ↓
-Fixed ≈ Adaptive
-   ↓
-Prediction instability
-   ↓
-Retraining
-   ↓
-New specialized model created
-   ↓
-Model integrated into the Adaptive pool
-   ↓
-Events 2 and 3
-   ↓
-Previously learned regime is reused
-   ↓
-More stable predictions
 
-The key advantage of the Adaptive strategy is therefore not only model selection, but also the ability to extend the model pool when a previously unseen operating condition appears.
+A new QoS regime is encountered. Fixed and Adaptive behave similarly because no specialized model is available yet.
+
+Prediction instability is observed.
+
+Retraining
+
+The new regime triggers the retraining process.
+
+A new specialized model, PoP_4248 (ESN), is created.
+
+Model integration
+
+The new model is added to the Adaptive model pool.
+
+The system now has a representation of the previously unseen regime.
+
+Event 2
+
+A similar regime is encountered again.
+
+Adaptive reuses the learned model and produces more stable predictions.
+
+Event 3
+
+The learned regime appears again.
+
+Adaptive remains stable and avoids the degradation observed with Fixed.
+
+This sequence highlights an important property of the Adaptive strategy: its advantage does not necessarily appear during the first encounter with a new regime.
+
+The benefit emerges after the system has learned from this first exposure and integrated a specialized model into its pool.
 
 QoE Impact
 
 The prediction-level results are confirmed by the application-level QoE measurements.
 
-The experiments introduce controlled network degradations and observe their impact on playback slowdown, buffering, rebuffering, and recovery.
+The experiments introduce controlled network degradations and observe their impact on:
+
+playback slowdown;
+
+buffering;
+
+rebuffering;
+
+service recovery.
+
+Baseline
+
+The Baseline is the most affected by the network disturbances.
+
+The playback interruptions are particularly severe. Once the stream enters a strong rebuffering state, it is unable to recover automatically before the end of the degradation period.
+
+A manual restart is therefore required to resume the stream.
+
+This behavior highlights the poor resilience of the single-model approach under successive regime changes and is consistent with the strong prediction instability observed around the breakpoints.
+
+<p align="center">
+  <img src="figures/qoe_event_1.png" width="95%" alt="QoE comparison - Event 1">
+</p>
+
+The Baseline therefore represents the worst-case behavior: prediction instability is accompanied by severe application-level interruption and manual intervention is required to restore playback.
 
 QoE Event 1
 
 During Event 1, Fixed and Adaptive exhibit a similar behavior.
 
-This is expected because the Adaptive strategy has not yet learned the new regime. The disturbance therefore produces a significant playback degradation for both strategies.
+This is expected because Adaptive has not yet learned the new regime. The newly observed QoS condition is not represented by a dedicated model in the Adaptive pool.
+
+As a consequence, both Fixed and Adaptive experience a strong playback slowdown and rebuffering.
 
 <p align="center">
   <img src="figures/qoe_event_1.png" width="95%" alt="QoE Event 1">
 </p>
 
-Event 1 can therefore be interpreted as the adaptation phase: the new condition exposes the limitation of the existing model pool and triggers retraining.
+Unlike the Baseline, however, Fixed and Adaptive are able to recover without requiring a manual restart.
+
+Event 1 therefore represents the adaptation phase for Adaptive:
+
+the new QoS condition is encountered;
+
+the current model pool proves insufficient;
+
+QoE degradation is observed;
+
+retraining is triggered;
+
+a new specialized model is learned.
 
 QoE Event 2
 
 After retraining and integration of the new model, the difference between Fixed and Adaptive becomes clear.
 
-The Fixed strategy still experiences a strong playback slowdown and rebuffering, while the Adaptive strategy is able to reuse the newly learned regime.
+The Fixed strategy continues to experience a strong playback slowdown and rebuffering because its model pool is unchanged.
+
+Adaptive, on the other hand, can reuse the model learned after Event 1.
 
 <p align="center">
   <img src="figures/qoe_event_2.png" width="95%" alt="QoE Event 2">
 </p>
 
-For Adaptive, the network degradation is still injected, but it no longer produces the same application-level QoE degradation.
+The network degradation is still injected during Event 2, but Adaptive no longer exhibits the same application-level degradation.
+
+No rebuffering is observed for Adaptive.
 
 QoE Event 3
 
@@ -134,11 +210,41 @@ The same trend is confirmed during Event 3.
   <img src="figures/qoe_event_3.png" width="95%" alt="QoE Event 3">
 </p>
 
-The Fixed strategy still exhibits severe slowdown and playback interruption.
+The Fixed strategy again exhibits severe playback slowdown and interruption.
 
-Adaptive, on the other hand, reuses the knowledge acquired after Event 1 and avoids the QoE degradation observed with Fixed.
+Adaptive reuses the knowledge acquired after Event 1 and maintains playback close to its nominal behavior.
 
-No rebuffering is observed for Adaptive during Events 2 and 3.
+No rebuffering is observed for Adaptive during Event 3.
+
+From Prediction Stability to QoE
+
+The QoE results reinforce the prediction-level observations.
+
+Baseline
+
+The single-model strategy exhibits strong instability around regime changes. This instability translates into severe playback interruptions, to the point that a manual restart is required to continue the stream.
+
+Fixed
+
+The fixed model pool improves prediction stability and service recovery compared with the Baseline.
+
+However, because its model pool cannot evolve, prediction instability remains around some breakpoints and the application still experiences significant rebuffering.
+
+Adaptive
+
+At Event 1, Adaptive behaves similarly to Fixed because the new regime has not yet been learned.
+
+After retraining and integration of PoP_4248 (ESN), Adaptive can recognize and reuse the learned regime during Events 2 and 3.
+
+As a result:
+
+prediction instability is strongly reduced;
+
+playback slowdown remains close to its nominal behavior;
+
+no rebuffering is observed during Events 2 and 3.
+
+Importantly, the network degradation is still injected during these events. What disappears is not the network disturbance itself, but its impact on application-level QoE.
 
 Main Observation
 
@@ -150,36 +256,46 @@ Prediction behavior around regime changes
 
 Model pool
 
-QoE impact
+Application-level impact
 
 Baseline
 
-Strong instability and repeated oscillations
+Strong instability, catastrophic forgetting and remembering effects
 
 Single model
 
-High sensitivity to degradation
+Severe interruptions; manual restart required
 
 Fixed
 
-More stable than Baseline, but still unstable around breakpoints
+More stable than Baseline, but oscillations remain around breakpoints
 
-Static pool
+Static model pool
 
-Rebuffering remains observable
+Automatic recovery, but rebuffering remains
 
 Adaptive
 
-Similar to Fixed at first exposure, then significantly more stable
+Similar to Fixed during the first exposure, then significantly more stable
 
-Evolvable pool
+Evolvable model pool
 
 No observed rebuffering during Events 2 and 3
 
-The main benefit of the Adaptive strategy is therefore not limited to a reduction in average prediction error.
+The main benefit of the Adaptive strategy is therefore not limited to reducing average prediction error.
 
 Its main advantage is the improvement of prediction reliability around regime changes.
 
-The first occurrence of a new regime may still generate prediction instability and QoE degradation. However, after retraining and integration of a specialized model, subsequent occurrences of the same or a similar regime can be handled more effectively.
+The first occurrence of a new QoS regime can still generate prediction instability and QoE degradation. However, this first exposure allows the system to learn the new operating condition.
 
-This improvement directly translates into better service continuity and application-level QoE.
+After retraining and integration of a specialized model, subsequent occurrences can be handled much more effectively.
+
+In this experiment:
+
+Event 1 exposes the new regime and triggers adaptation;
+
+retraining creates and integrates PoP_4248 (ESN);
+
+Events 2 and 3 demonstrate the benefit of the acquired knowledge;
+
+the improved prediction stability directly translates into better service continuity and application-level QoE.
