@@ -2,9 +2,9 @@ Experimental Results
 
 This document gives additional insights by comparing three QoS prediction strategies:
 
-Baseline: a single prediction model;
-Fixed: a fixed pool of pre-trained models;
-Adaptive: an evolving model pool able to integrate a new specialized model when a previously unseen QoS regime is encountered.
+* Baseline: a single prediction model
+* Fixed: a fixed pool of pre-trained models
+* Adaptive: an evolving model pool able to integrate a new specialized model when a previously unseen QoS regime is encountered.
 
 The analysis focuses on two aspects:
   * prediction stability around regime changes;
