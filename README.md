@@ -85,6 +85,9 @@ Once the new model has been integrated, Adaptive can reuse the knowledge acquire
 When the corresponding or a sufficiently similar QoS regime is encountered again, the predictor no longer needs to adapt from scratch. The prediction response becomes considerably more stable around the following regime changes.
 
 <p align="center">
+  <img src="figures/adaptive_event_2.png" width="90%" alt="Adaptive approach after retraining">
+</p>
+<p align="center">
   <img src="figures/adaptive_event_3.png" width="90%" alt="Adaptive approach after retraining">
 </p>
 
