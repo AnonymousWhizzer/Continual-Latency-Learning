@@ -11,7 +11,7 @@ The results show strong prediction oscillations around the detected regime chang
 This behavior highlights the limitations of a single continually updated model in a non-stationary environment. In particular, the repeated instability observed when the operating conditions change is consistent with catastrophic forgetting and remembering effects: adapting the same model to a new regime can degrade previously acquired knowledge, while returning to a previously observed regime does not necessarily guarantee an immediate stable response.
 
 <p align="center">
-  <img src="figures/baseline_all_events.png" width="95%" alt="Baseline prediction behavior">
+  <img src="figures/Baseline_all_events.png" width="95%" alt="Baseline prediction behavior">
 </p>
 
 The Baseline therefore performs reasonably during stationary periods, but its prediction reliability deteriorates significantly around regime transitions.
