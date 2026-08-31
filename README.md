@@ -182,7 +182,7 @@ This first event therefore has two roles:
 ## 2.2 Event 2 — Benefit after retraining
 
 <p align="center">
-  <img src="figures/qoe_event_2.png" width="95%" alt="QoE Event 2">
+  <img src="figures/Qoe_event_2.png" width="95%" alt="QoE Event 2">
 </p>
 
 By Event 2, the Adaptive pool has already been extended with the newly trained model.
@@ -204,7 +204,7 @@ No rebuffering is observed for Adaptive during Event 2.
 ## 2.3 Event 3 — Persistence of the acquired knowledge
 
 <p align="center">
-  <img src="figures/qoe_event_3.png" width="95%" alt="QoE Event 3">
+  <img src="figures/Qoe_event_3.png" width="95%" alt="QoE Event 3">
 </p>
 
 Event 3 confirms the same trend.
