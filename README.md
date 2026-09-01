@@ -1,4 +1,4 @@
-# Supplementary Experimental Results
+# Omplementary Experimental Results
 
 > **Purpose of this page.**  
 > This README complements the results reported in the paper by providing a more detailed visual interpretation of the experiments.  
