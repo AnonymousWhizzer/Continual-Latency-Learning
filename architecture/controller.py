@@ -35,9 +35,9 @@ monitoring_ip = "localhost"
 #setting up API
 app = FastAPI()
 selection_url = "http://"+monitoring_ip+":8000/node_selection"
-deployment_url = "http://194.199.113.87:9000/deploy"
-integration_url = "http://194.199.113.87:9000/integrate"
-release_url = "http://194.199.113.87:9000/release"
+deployment_url = "http://"+deployer_ip+":9000/deploy"
+integration_url = "http://"+deployer_ip+":9000/integrate"
+release_url = "http://"+deployer_ip+":9000/release"
 
 #Setting up values:
 data = {
