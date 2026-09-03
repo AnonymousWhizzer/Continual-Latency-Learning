@@ -1,0 +1,48 @@
+pipeline {
+    agent { label "${params.node}" }
+
+    parameters {
+        string(name: 'node', defaultValue: '', description: 'Nom de l’agent Jenkins (ex: cluster-1 ou cluster-2)')
+        string(name: 'ID', defaultValue: '', description: 'Identifiant du cluster')
+        string(name: 'selector', defaultValue: '', description: 'Node selector Kubernetes (ex: space_4)')
+        string(name: 'repo_link', defaultValue: '', description: 'Lien du repo contenant le service')
+    }
+
+    environment {
+        DEPLOYMENT_YAML = 'service_deployment.yaml'
+        UPDATED_YAML = 'updated_deployment.yaml'
+    }
+
+    stages {
+
+        stage('Cloner le dépôt') {
+            steps {
+                script {
+                    git branch: 'main', url: "${params.repo_link}"
+                }
+            }
+        }
+
+        stage('Modifier le YAML') {
+            steps {
+                script {
+                    sh """
+                        python3 update.py ${DEPLOYMENT_YAML} ${UPDATED_YAML} ${params.selector}
+                    """
+                }
+            }
+        }
+
+        stage('Déploiement sur Kubernetes') {
+            steps {
+                script {
+                    kubernetesDeploy(
+                        configs: "${UPDATED_YAML}",
+                        kubeconfigId: "${params.node}-kubernetes",
+                        enableConfigSubstitution: false
+                    )
+                }
+            }
+        }
+    }
+}

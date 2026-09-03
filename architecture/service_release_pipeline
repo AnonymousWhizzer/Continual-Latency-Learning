@@ -1,0 +1,13 @@
+pipeline {
+    agent { label "${params.node}" }
+    parameters {
+        string(name: 'node', defaultValue: '', description: 'Nom de l’agent Jenkins (ex: cluster-1 ou cluster-2)')
+    }
+    stages {
+        stage('Supprimer le déploiement Kubernetes') {
+            steps {
+                sh ' cd ~ && kubectl delete -f service_deployment.yaml || echo "Le fichier ou le déploiement n\'existe pas."'
+            }
+        }
+    }
+}
