@@ -28,7 +28,7 @@ def jenkins_deployment(service: str, node: str, link: str):
     param_3='selector=space_'+worker
     param_4='repo_link='+link
     job = "Service_Deployment_Pipeline"
-    command = ['java', '-jar', 'jenkins-cli.jar', '-s', 'http://194.199.113.87:8080/', '-auth', 'djcsanou:Whizzer007!', 'build' ,'-p', param_1,'-p', param_2, '-p', param_3,'-p', param_4, job, '-s', '-v']
+    command = ['java', '-jar', 'jenkins-cli.jar', '-s', 'http://"+deployer_ip+":8080/', '-auth', 'login', 'build' ,'-p', param_1,'-p', param_2, '-p', param_3,'-p', param_4, job, '-s', '-v']
     try:
         # Exécution de la commande
         result = subprocess.run(command, capture_output=True, text=True, check=True)
@@ -46,7 +46,7 @@ def jenkins_release(node: str):
         if node!=None:
             param_5 = 'node=cluster-'+node[3]
             job = "Service_Release_Pipeline"
-            release_command = ['java', '-jar', 'jenkins-cli.jar', '-s', 'http://194.199.113.87:8080/', '-auth', 'djcsanou:Whizzer007!', 'build' ,'-p', param_5, job, '-s', '-v']
+            release_command = ['java', '-jar', 'jenkins-cli.jar', '-s', 'http://"+deployer_ip+":8080/', '-auth', 'login', 'build' ,'-p', param_5, job, '-s', '-v']
         # Exécution de la commande
         result = subprocess.run(release_command, capture_output=True, text=True, check=True)
         # Affichage de la sortie
@@ -63,7 +63,7 @@ def jenkins_reconfigure(node: str):
         if node!=None:
             param_5 = 'node=cluster-'+node[3]
             job = "Service_Reconfiguration_Pipeline"
-            release_command = ['java', '-jar', 'jenkins-cli.jar', '-s', 'http://194.199.113.87:8080/', '-auth', 'admin:admin', 'build' ,'-p', param_5, job, '-s', '-v']
+            release_command = ['java', '-jar', 'jenkins-cli.jar', '-s', 'http://"+deployer_ip+":8080/', '-auth', 'login', 'build' ,'-p', param_5, job, '-s', '-v']
         # Exécution de la commande
         result = subprocess.run(release_command, capture_output=True, text=True, check=True)
         # Affichage de la sortie
@@ -82,7 +82,7 @@ def jenkins_integration(service: str, node: str, link: str):
     param_1='node=cluster-'+cluster
     param_2='repo_link='+link
     job = "Service_Integration_Pipeline"
-    command = ['java', '-jar', 'jenkins-cli.jar', '-s', 'http://194.199.113.87:8080/', '-auth', 'admin:admin', 'build' ,'-p', param_1, '-p', param_2, job]
+    command = ['java', '-jar', 'jenkins-cli.jar', '-s', 'http://"+deployer_ip+":8080/', '-auth', 'login', 'build' ,'-p', param_1, '-p', param_2, job]
     try:
         # Exécution de la commande
         result = subprocess.run(command, capture_output=True, text=True, check=True)
